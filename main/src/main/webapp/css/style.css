@@ -1,0 +1,120 @@
+:root {
+    font-size: 16px;
+    font-family: Verdana, sans-serif;
+    --border-color: rgb(185, 185, 185);
+    --border: 1px solid var(--border-color);
+    --border-radius: 6px;
+}
+
+html {
+    padding: 1rem;
+}
+
+.container {
+    padding: 0;
+    position: relative;
+}
+
+header {
+    margin-bottom: 1rem;
+}
+
+header .languages {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+header .login-or-register-box {
+    position: absolute;
+    top: calc(24px + 0.5rem);
+    right: 0;
+}
+
+header .login-or-register-box a {
+    color: black;
+    text-decoration: none;
+}
+
+.navbar {
+    border: var(--border);
+    border-radius: var(--border-radius);
+    border-width: 2px;
+    margin-top: 1rem;
+}
+
+.nav-link, #dropdownMenuButton {
+    text-decoration: none;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: black !important;
+    font-family: Arial, sans-serif;
+}
+
+.search_form {
+    margin: 1rem;
+}
+
+.search_form button {
+    margin: 0.5rem;
+}
+
+form {
+    margin: 1rem auto;
+    width: 50%;
+}
+
+form .error {
+    color: #f00;
+}
+
+#search_form {
+    width: 75%;
+}
+
+li form {
+    margin: 0;
+}
+
+.list-group-item label {
+    font-size: 1.2rem;
+}
+
+.search_box {
+    margin: 0.5rem;
+}
+
+#search_feed {
+    margin: 0.5rem;
+}
+
+.list-group-item {
+    padding: .1rem 0.5rem
+}
+
+#visit, .visit-form {
+    width: 100%;
+}
+
+.carousel-item {
+    height: 80vh;
+    position: relative;
+    left: 0;
+    top: 0;
+}
+
+#pay-form {
+    margin: 0;
+}
+
+#offer-form {
+    margin: 0;
+    padding: 0;
+}
+
+footer {
+    text-align: center;
+    border-top: var(--border);
+    margin-top: 3rem;
+    padding-top: 1rem;
+}
