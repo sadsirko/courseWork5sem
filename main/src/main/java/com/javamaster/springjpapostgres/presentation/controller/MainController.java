@@ -29,17 +29,21 @@ public class MainController {
     public String homePage(HttpServletRequest request) {
         List<Source> chooseList = new ArrayList<>();
         List<Source> sourceList = sourceService.findAll();
+        List<Source> sourceListAPI = sourceService.getDialogs();
+        for(int i = 0; i < sourceListAPI.size();i++){
+            System.out.println(sourceListAPI.get(i).toString());
+        }
 
         if( request.getSession().getAttribute("sourceList") == null &&
                 request.getSession().getAttribute("chooseList") == null) {
-            request.getSession().setAttribute("sourceList", sourceList);
+            request.getSession().setAttribute("sourceList", sourceListAPI);
             request.getSession().setAttribute("chooseList", chooseList);
         }
-        System.out.println("lol");
+        System.out.println("home");
         return "home";
     }
 
-    @RequestMapping(value = "/home/add",method = RequestMethod.GET)
+    @RequestMapping(value = "/home/add", method = RequestMethod.GET)
     public String homeAdd(Model model,@ModelAttribute("sourceId") String sourceId,
                           @ModelAttribute("sourceName") String sourceName,
                           @ModelAttribute("source") Source source,
@@ -59,6 +63,7 @@ public class MainController {
         request.getSession().setAttribute("chooseList",chooseList);
         return "home";
     }
+
     @RequestMapping(value = "/home/remove",method = RequestMethod.GET)
     public String homeRemove(Model model,@ModelAttribute("sourceId") String sourceId,
                           @ModelAttribute("sourceName") String sourceName,
@@ -92,6 +97,7 @@ public class MainController {
 
         return "process";
     }
+
     @RequestMapping(value = "/processing",method = RequestMethod.POST)
     public String processingPage(Model model,@ModelAttribute("sourceId") String sourceId,
                           @ModelAttribute("startDate") String startDate,

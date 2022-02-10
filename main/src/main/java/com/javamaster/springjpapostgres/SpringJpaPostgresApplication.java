@@ -6,10 +6,10 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 
 @SpringBootApplication
-public class SpringjpapostgresApplication {
+public class SpringJpaPostgresApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(SpringjpapostgresApplication.class, args);
+		SpringApplication.run(SpringJpaPostgresApplication.class, args);
 	}
 
 	@EventListener(ApplicationReadyEvent.class)

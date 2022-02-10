@@ -7,11 +7,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.google.gson.Gson;
 
 @Service
 public class SourceService {
@@ -33,15 +35,41 @@ public class SourceService {
             sourceRepository.save(data.get(i));
         }
     }
+    public List<String> cutJSONArr(String jsonArr) {
+        List<String> resultArr = new ArrayList<>();
+        int start = 0;
+        int end = 0;
+        while (end < jsonArr.length()-5)
+        {
+            start = jsonArr.indexOf("{",end);
+            end = jsonArr.indexOf("}",end) + 1;
+//            JSONObject obj = new JSONObject(jsonArr.substring(start,end));
+//            String pageName = obj.getJSONObject("pageInfo").getString("pageName");
+            resultArr.add(jsonArr.substring(start,end));
+        }
+        return resultArr;
+    }
 
+    public List<Source> getDialogs() {
+        final String url = "http://localhost:3000/dialogs";
+        RestTemplate restTemplate = new RestTemplate();
+        String  source = restTemplate.getForObject(url, String.class);
+        System.out.println(source);
+
+        List<String> sourceStrList =  cutJSONArr(source);
+        List<Source> sourceList = new ArrayList<>();
+
+        for (int i = 0; i < sourceStrList.size() ;i++){
+            sourceList.add(new Gson().fromJson(sourceStrList.get(i), Source.class));
+            System.out.println(sourceStrList.get(i));
+        }
+        return sourceList;
+    }
 
     @Transactional
     public void delete( String id){
         sourceRepository.deleteById(id);
     }
-
-
-
 
 
     public List<Source> getSearch(String parameters){
