@@ -5,6 +5,7 @@ import com.javamaster.springjpapostgres.persistence.entity.Source;
 import com.javamaster.springjpapostgres.persistence.repository.SourceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -64,6 +65,14 @@ public class SourceService {
             System.out.println(sourceStrList.get(i));
         }
         return sourceList;
+    }
+
+
+    public void addChannel(String link) {
+        final String url = "http://localhost:3000/add?link=" + link;
+        RestTemplate restTemplate = new RestTemplate();
+        String  source = restTemplate.getForObject(url, String.class);
+        System.out.println(source);
     }
 
     @Transactional

@@ -9,16 +9,13 @@
 
         <div class="form-group">
         <label for="link">Link on Channel:</label>
-            <input class="form-control" placeholder="Link in format https://t.me/sad_sirko" id="link" name="link">
+            <input class="form-control" placeholder="Link in format @sad_sirko" id="link" name="link">
         </div>
         <button type="submit" class="btn btn-primary">Add channel</button>
     </form>
 
-
     <%@ include file="/WEB-INF/jspf/footer.jspf" %>
 </div>
-
-
 <script src="/js/form-validation.js"></script>
 <script src="/js/bootstrap.min.js"></script>
 </body>

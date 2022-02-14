@@ -1,2 +1,22 @@
-package com.javamaster.springjpapostgres.persistence.repository;public class RefreshRepository {
+package com.javamaster.springjpapostgres.persistence.repository;
+
+import com.javamaster.springjpapostgres.persistence.entity.Category;
+import com.javamaster.springjpapostgres.persistence.entity.Refresh;
+import com.javamaster.springjpapostgres.persistence.entity.Source;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+
+import java.sql.Date;
+import java.util.List;
+import java.util.Optional;
+
+public interface  RefreshRepository extends JpaRepository<Refresh, String>, JpaSpecificationExecutor<Refresh> {
+    Refresh findByDate(Date date);
+    @Query(value = "select modtime from refresh order by id desc limit 1",
+            nativeQuery = true)
+    Date lastCashDate();
+    @Query(value = "insert into refresh default values ",
+            nativeQuery = true)
+    void refresh();
 }

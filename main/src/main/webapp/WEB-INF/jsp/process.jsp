@@ -37,7 +37,7 @@
         <div class="form-group">
                     <label for="range">Range:</label>
                     <input type="number" class="form-control" id="range" name="range"
-                           placeholder="Enter num of symbols" min="0" max="1000000"
+                           placeholder="Enter num of days range" min="0" max="1000000"
                            autocomplete="off">
         </div>
         <button type="submit" class="btn btn-primary">Process</button>

@@ -122,7 +122,6 @@ public class MainController {
         List<Source> sourceList = (List<Source>) request.getSession().getAttribute("sourceList");
         List<Source> chooseList = (List<Source>) request.getSession().getAttribute("chooseList");
         System.out.println(model.getAttribute("sourceId"));
-
         return "add";
     }
 
@@ -130,74 +129,7 @@ public class MainController {
     public String addChannel(Model model, @ModelAttribute("link") String link, HttpServletRequest request) {
         String info = (String) request.getSession().getAttribute("link");
         System.out.println(model.getAttribute("link"));
+        sourceService.addChannel(info);
         return "redirect:home";
     }
-//    @RequestMapping(value = "/home/add",method = RequestMethod.GET)
-//    public String homeAdd(Model model,@ModelAttribute("source") String sourceId,
-//                          HttpServletRequest request) {
-//        List<Source> sourceList = (List<Source>) request.getSession().getAttribute("sourceList");
-//        List<Source> chooseList = (List<Source>) request.getSession().getAttribute("chooseList");
-//        Source newChosen = new Source();
-//        System.out.println(model.getAttribute("sourceId"));
-//        newChosen.setId((String) model.getAttribute("sourceId"));
-//        newChosen.setName((String) model.getAttribute("sourceName"));
-//        System.out.println(newChosen);
-//
-//        chooseList.add(newChosen);
-////        for(int i = 0; i < sourceList.size(); i++){
-////            if (sourceList.get(i).getId().equals(sourceId)){
-////                chooseList.add(sourceList.get(i));
-////                sourceList.remove(sourceList.get(i));
-////            }
-////        }
-//        request.getSession().setAttribute("sourceList",sourceList);
-//        request.getSession().setAttribute("chooseList",chooseList);
-//        return "redirect:/home";
-//    }
-//
-
-//    @GetMapping("/home")
-//    public String homePage(HttpServletRequest request) {
-//        List<Source> chooseList = new ArrayList<>();
-//        List<Source> sourceList = sourceService.findAll();
-//
-//        chooseList.add(sourceList.get(0));
-//
-//        request.getSession().setAttribute("sourceList",sourceList);
-//        request.getSession().setAttribute("chooseList",chooseList);
-//        System.out.println("lol");
-//        return "home";
-//    }
-//
-//    @GetMapping("/home/add")
-//    public String homeAdd(HttpServletRequest request) {
-//        Source addedSource = (Source) request.getSession().getAttribute("source");
-//        System.out.println(request.getSession().getAttribute("source"));
-//        System.out.println(request.getSession().getAttribute("sourceId"));
-//        System.out.println(request.getSession().getAttribute("sourceList"));
-//        List<Source> chooseSourceList = (List<Source>) request.getSession().getAttribute("chooseSourceList");
-//        if (chooseSourceList == null) {
-//            chooseSourceList = new ArrayList<>();
-//        }
-//        chooseSourceList.add(addedSource);
-//        request.getSession().setAttribute("chooseList",chooseSourceList);
-//        request.getSession().setAttribute("sourceList",sourceService.findAll());
-//        System.out.println(chooseSourceList.toString());
-//        System.out.println(addedSource.toString());
-//        return "home";
-//    }
-//    @RequestMapping(method = RequestMethod.GET, value = "/search")
-//    @ResponseBody
-//    public List<Good> search(@RequestParam(value = "query") String search) {
-//        return goodService.getSearch(search);
-//    }
-//
-//
-//    @RequestMapping(method = RequestMethod.GET, value = "/search")
-//    @ResponseBody
-//    public List<Good> search(@RequestParam(value = "query") String search) {
-//        return goodService.getSearch(search);
-//    }
-
-
 }
