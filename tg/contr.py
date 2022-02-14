@@ -6,19 +6,25 @@ import json
 
 SELF_NAME = "Enekin"
 telegram = Telegram_api(SELF_NAME, API_HASH, API_ID)
-# telegram.write_me()
 
-class HelloHandler(RequestHandler):
+class GetChannels(RequestHandler):
     async def get(self):
         print("get")
         res = await telegram.get_all_channels()
         jsonString = json.dumps(res)
         self.write(jsonString)
 
-def make_app():
-    urls = [("/dialogs", HelloHandler)]
-    return Application(urls)
+class JoinChannel(RequestHandler):
+    async def get(self):
+        print("get")
+        name = self.get_argument('link')
+        result = await telegram.join_channel(name)
+        print(result)
 
+def make_app():
+    urls = [("/dialogs", GetChannels),
+            ("/add", JoinChannel)]
+    return Application(urls)
 
 if __name__ == '__main__':
     app = make_app()

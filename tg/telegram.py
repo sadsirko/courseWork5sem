@@ -14,6 +14,7 @@ import os
 import subprocess
 from time import sleep
 from telethon.tl.functions.channels import JoinChannelRequest
+from telethon import functions, types
 import pymongo
 from pymongo import MongoClient
 import datetime
@@ -30,10 +31,56 @@ class Telegram_api:
 
 
     async def write_me(self):
-        self.client.send_message('me', "self.take_dialog()")
+        await self.client.send_message('me', "self.take_dialog()")
 
     def get_dial(self):
         return self.client.get_dialogs()
+
+    async def join_channel(self,name):
+        try:
+            result = await self.client(functions.channels.JoinChannelRequest(
+                channel = str(name)
+            ))
+            print(result.stringify())
+        except ValueError:
+            result = "Empty"
+        return result
+
+    async def get_channel(self, link):
+        ch_ent = await self.client.get_entity(link)
+        print(ch_ent)
+        return ch_ent
+
+    async def take_dialog(self):
+        dialogs = await self.client.get_dialogs()
+        return dialogs
+
+
+    async def dialog_info(self, dia):
+        ch_id = dia.message.peer_id.channel_id
+        title = dia.name
+        chan_ent = await self.client.get_entity(PeerChannel(ch_id))
+        # path_photo = await client.download_profile_photo(chan_ent,path_photo_2)
+        # link_on_photo = await upload_get_link(path_photo)
+        # await fullDB_Dia(ch_id, title)
+        # await fullDB_Photo(ch_id,link_on_photo)
+        print("ID:", dia.message.peer_id.channel_id)
+        print("TITLE: ", dia.name)
+        print("DIA: ", dia)
+    
+    async def get_all_channels(self):
+        await self.client.send_message('me', 'Thanks for the Telethon library!')
+        dialog_arr = await self.take_dialog()
+        data = []
+        iteration = 0
+        for dialog in dialog_arr:
+            if dialog.name != "Enekin":
+                print(dialog.name)
+                try:
+                    data.append({"id":dialog.message.peer_id.channel_id,"name":dialog.name})
+                except BaseException:
+                    print(dialog.message)
+        return data
 
     # clientDB = MongoClient('localhost', 27017)
     # db = clientDB.test_database
@@ -80,21 +127,6 @@ class Telegram_api:
             # except errors.TakeoutInitDelayError as e:
             #     print('Must wait', e.seconds, 'before takeout')
 
-    async def take_dialog(self):
-        dialogs = await self.client.get_dialogs()
-        return dialogs
-
-    async def dialog_info(self, dia):
-        ch_id = dia.message.peer_id.channel_id
-        title = dia.name
-        chan_ent = await self.client.get_entity(PeerChannel(ch_id))
-        # path_photo = await client.download_profile_photo(chan_ent,path_photo_2)
-        # link_on_photo = await upload_get_link(path_photo)
-        # await fullDB_Dia(ch_id, title)
-        # await fullDB_Photo(ch_id,link_on_photo)
-        print("ID:", dia.message.peer_id.channel_id)
-        print("TITLE: ", dia.name)
-        print("DIA: ", dia)
 
     async def takeMesInfo(self, message):
         author_id = message.peer_id.channel_id
@@ -146,16 +178,4 @@ class Telegram_api:
             return False
 
     # [{name,id},{name,id}]
-    async def get_all_channels(self):
-        await self.client.send_message('me', 'Thanks for the Telethon library!')
-        dialog_arr = await self.take_dialog()
-        data = []
-        iteration = 0
-        for dialog in dialog_arr:
-            if dialog.name != "Enekin":
-                print(dialog.name)
-                try:
-                    data.append({"id":dialog.message.peer_id.channel_id,"name":dialog.name})
-                except BaseException:
-                    print(dialog.message)
-        return data
+
