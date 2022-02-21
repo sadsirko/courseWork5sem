@@ -27,7 +27,7 @@ public class SourceService {
     }
 
     public Source findById(String id){return  sourceRepository.findById(id).orElse(null);}
-    public Source findByName(String name){return  sourceRepository.findByName(name);}
+    public List<Source> findByName(String name){return  sourceRepository.findByName(name);}
 
     public List<Source> findAll(){
         List<Source> res = new ArrayList<>();
@@ -78,6 +78,7 @@ public class SourceService {
 
     public void addChannel(String link) {
         final String url = "http://localhost:3000/add?link=" + link;
+
         RestTemplate restTemplate = new RestTemplate();
         String  source = restTemplate.getForObject(url, String.class);
         System.out.println(source);

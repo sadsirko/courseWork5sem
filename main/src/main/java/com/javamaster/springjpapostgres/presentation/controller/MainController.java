@@ -30,15 +30,14 @@ public class MainController {
         List<Source> chooseList = new ArrayList<>();
         List<Source> sourceList = sourceService.findAll();
         List<Source> sourceListAPI = sourceService.getDialogs();
-        for(int i = 0; i < sourceListAPI.size();i++){
-            System.out.println(sourceListAPI.get(i).toString());
-        }
+        List<Source> nameList = new ArrayList<>();
 
         if( request.getSession().getAttribute("sourceList") == null &&
                 request.getSession().getAttribute("chooseList") == null) {
             request.getSession().setAttribute("sourceList", sourceListAPI);
             request.getSession().setAttribute("chooseList", chooseList);
         }
+        request.getSession().setAttribute("nameList", nameList);
         System.out.println("home");
         return "home";
     }
@@ -61,6 +60,16 @@ public class MainController {
         }
         request.getSession().setAttribute("sourceList",sourceList);
         request.getSession().setAttribute("chooseList",chooseList);
+        return "home";
+    }
+
+    @RequestMapping(value = "/home/name",method = RequestMethod.GET)
+    public String find(Model model, @ModelAttribute("name") String name,
+                       HttpServletRequest request){
+        List<Source> nameList = new ArrayList<>();
+        nameList = sourceService.findByName(name);
+        System.out.println(nameList);
+        request.getSession().setAttribute("nameList", nameList);
         return "home";
     }
 
@@ -131,5 +140,13 @@ public class MainController {
         System.out.println(model.getAttribute("link"));
         sourceService.addChannel(info);
         return "redirect:home";
+    }
+
+    @RequestMapping(value = "/categories", method = RequestMethod.GET)
+    public void getCategories(Model model, @ModelAttribute("link") String link, HttpServletRequest request) {
+        categoryService.categories();
+
+        //        return "redirect:home";
+
     }
 }

@@ -21,9 +21,25 @@ class JoinChannel(RequestHandler):
         result = await telegram.join_channel(name)
         print(result)
 
+class GetFolders(RequestHandler):
+    async def get(self):
+        print("get")
+        res = await telegram.get_folders()
+        jsonString = json.dumps(res)
+        self.write(jsonString)
+
+class GetCategories(RequestHandler):
+    async def get(self):
+        print("get")
+        res = await telegram.get_categories()
+        jsonString = json.dumps(res)
+        self.write(jsonString)
+
 def make_app():
     urls = [("/dialogs", GetChannels),
-            ("/add", JoinChannel)]
+            ("/add", JoinChannel),
+            ("/categories", GetCategories),
+            ("/folders", GetFolders)]
     return Application(urls)
 
 if __name__ == '__main__':

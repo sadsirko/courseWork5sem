@@ -67,7 +67,7 @@ class Telegram_api:
         print("ID:", dia.message.peer_id.channel_id)
         print("TITLE: ", dia.name)
         print("DIA: ", dia)
-    
+
     async def get_all_channels(self):
         await self.client.send_message('me', 'Thanks for the Telethon library!')
         dialog_arr = await self.take_dialog()
@@ -81,6 +81,36 @@ class Telegram_api:
                 except BaseException:
                     print(dialog.message)
         return data
+
+    async def get_folders(self):
+        json = '{arr:['
+        request = await self.client(functions.messages.GetDialogFiltersRequest())
+        for dialog_filter in request:
+            json += "{ category: \'" + str(dialog_filter.title)  + "\',arr:[" 
+            print(dialog_filter.title)
+            for channel in dialog_filter.include_peers:
+                json += "\'" + str(channel.channel_id) + "\'," 
+                print(channel.channel_id)
+            json = json[:-1]
+            json += "]},"
+        json = json[:-1] + ']}'
+        print(json)
+        return json
+
+    async def get_categories(self):
+        print(1)
+        json = '{'
+        request = await self.client(functions.messages.GetDialogFiltersRequest())
+        for dialog_filter in request:
+            json += "\'" + str(dialog_filter.title)  + "\'," 
+            json += ','
+            json = json[:-1]
+        json = json[:-1]
+        json += ','
+        json += "}"
+        print(json)
+        return json
+
 
     # clientDB = MongoClient('localhost', 27017)
     # db = clientDB.test_database
