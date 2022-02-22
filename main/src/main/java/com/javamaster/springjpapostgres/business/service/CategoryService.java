@@ -54,8 +54,7 @@ public class CategoryService {
         {
             start = jsonArr.indexOf("'",end);
             end = jsonArr.indexOf(",",end) + 1;
-            System.out.println(jsonArr.substring(start,end));
-            resultArr.add(jsonArr.substring(start,end));
+            resultArr.add(jsonArr.substring(start + 1,end - 2));
         }
         return resultArr;
     }
@@ -67,11 +66,18 @@ public class CategoryService {
         System.out.println(category);
         List<String> categoryList =  cutJSONArr(category);
         List<Category> sourceList = new ArrayList<>();
+        String text;
         for (int i = 0; i < categoryList.size() ;i++){
 //            sourceList.add(new Gson().fromJson(categoryList.get(i), Category.class));
+            for(int j = 1; j < categoryList.get(i).length; j++){
+                int hexVal = Integer.parseInt(arr[j], 16);
+                text += (char)hexVal;
+            }
             System.out.println(categoryList.get(i));
+//            System.out.println(sourceList.get(i));
         }
-//        return sourceList;
+
+        //        return sourceList;
     }
 
 
