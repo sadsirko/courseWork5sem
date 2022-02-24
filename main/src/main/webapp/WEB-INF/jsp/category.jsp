@@ -6,20 +6,26 @@
 <div class="container">
     <%@ include file="/WEB-INF/jspf/header.jspf" %>
     <div class="row">
+    categories
+    </div>
+    <div class="row">
         <div class="col-md-5">
-                <h3 class="title"> ${category.name}</h3>
-                <i>id </i>: ${category.id}
+             <c:forEach var="source" items="${nameList}">
+                <h3 class="title"> ${source.name}</h3>
+                <i>id </i>: ${source.id}
+                
                 <ul class="list-inline">
                     <li class="list-inline-item">
-                                <form class="form-inline" action="/category" method="get">
-                                        <input type="hidden" name="category"  value="${category}">
-                                        <input type="hidden" name="categoryName" value="${category.name}">
+                                <form class="form-inline" action="/category/check" method="post">
+                                        <input type="hidden" name="source"  value="${source}">
+                                        <input type="hidden" name="sourceId" value="${source.id}">
+                                        <input type="hidden" name="sourceName" value="${source.name}">
                                     <button type="submit" class="btn btn-outline-primary"> Check </button>
                                 </form>
                     </li>
                 </ul>
                 <hr>
-
+            </c:forEach>
         </div>
     
         <div class="col-md-5">

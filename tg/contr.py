@@ -35,11 +35,20 @@ class GetCategories(RequestHandler):
         jsonString = json.dumps(res)
         self.write(jsonString)
 
+class GetCategoriesSource(RequestHandler):
+    async def get(self):
+        print("get")
+        res = await telegram.get_categories_channel()
+        jsonString = json.dumps(res)
+        self.write(jsonString)
+
+    
 def make_app():
     urls = [("/dialogs", GetChannels),
             ("/add", JoinChannel),
             ("/categories", GetCategories),
             ("/folders", GetFolders)]
+
     return Application(urls)
 
 if __name__ == '__main__':

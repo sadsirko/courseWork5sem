@@ -83,17 +83,14 @@ class Telegram_api:
         return data
 
     async def get_folders(self):
-        json = '{arr:['
+        json = ''
         request = await self.client(functions.messages.GetDialogFiltersRequest())
         for dialog_filter in request:
-            json += "{ category: \'" + str(dialog_filter.title)  + "\',arr:[" 
             print(dialog_filter.title)
             for channel in dialog_filter.include_peers:
-                json += "\'" + str(channel.channel_id) + "\'," 
+                json += "{\'" + str(dialog_filter.title)  + "\'," + "\'" + str(channel.channel_id) + "\'}," 
                 print(channel.channel_id)
             json = json[:-1]
-            json += "]},"
-        json = json[:-1] + ']}'
         print(json)
         return json
 
@@ -110,7 +107,6 @@ class Telegram_api:
         json += "}"
         print(json)
         return json
-
 
     # clientDB = MongoClient('localhost', 27017)
     # db = clientDB.test_database

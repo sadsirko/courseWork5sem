@@ -1,8 +1,11 @@
 package com.javamaster.springjpapostgres.presentation.controller;
 
 import com.javamaster.springjpapostgres.business.service.CategoryService;
+import com.javamaster.springjpapostgres.business.service.SourceCategoryService;
 import com.javamaster.springjpapostgres.business.service.SourceService;
+import com.javamaster.springjpapostgres.persistence.entity.Category;
 import com.javamaster.springjpapostgres.persistence.entity.Source;
+import com.javamaster.springjpapostgres.persistence.entity.SourceCategory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
@@ -24,6 +27,8 @@ public class MainController {
     private SourceService sourceService;
     @Autowired
     private CategoryService categoryService;
+    @Autowired
+    private SourceCategoryService sourceCategoryService;
 
     @GetMapping("/home")
     public String homePage(HttpServletRequest request) {
@@ -143,10 +148,23 @@ public class MainController {
     }
 
     @RequestMapping(value = "/categories", method = RequestMethod.GET)
-    public void getCategories(Model model, @ModelAttribute("link") String link, HttpServletRequest request) {
-        categoryService.categories();
+    public String getCategories(Model model, @ModelAttribute("link") String link, HttpServletRequest request) {
+        List<Category> nameList = new ArrayList<>();
+        nameList = categoryService.findAll();
+        System.out.println(nameList);
+        request.getSession().setAttribute("nameList", nameList);
+        return "category";
+    }
 
-        //        return "redirect:home";
-
+    @RequestMapping(value = "/folders", method = RequestMethod.GET)
+    public String postCategories(Model model, @ModelAttribute("link") String link, HttpServletRequest request) {
+        sourceCategoryService.sourceCategories();
+        List<SourceCategory> nameList = new ArrayList<>();
+        nameList = sourceCategoryService.findAll();
+        for (int o = 0;o<nameList.size();o++){
+            System.out.println(nameList.get(o).toString());
+        }
+        request.getSession().setAttribute("newList", nameList);
+        return "category";
     }
 }

@@ -1,8 +1,8 @@
 package com.javamaster.springjpapostgres.business.service;
 
-import com.google.gson.Gson;
 import com.javamaster.springjpapostgres.persistence.entity.Category;
 import com.javamaster.springjpapostgres.persistence.repository.CategoryRepository;
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -16,11 +16,9 @@ import java.util.List;
 public class CategoryService {
     @Autowired
     private final CategoryRepository categoryRepository;
-    private final RefreshService refreshService;
 
-    public CategoryService(CategoryRepository categoryRepository, RefreshService refreshService) {
+    public CategoryService(CategoryRepository categoryRepository) {
         this.categoryRepository = categoryRepository;
-        this.refreshService = refreshService;
     }
 
     public Category findById(Integer id){return  categoryRepository.findById(id).orElse(null);}
@@ -35,16 +33,11 @@ public class CategoryService {
             categoryRepository.save(data.get(i));
         }
     }
+    public void deleteAll(){categoryRepository.deleteAll();}
 
-//    public List<Category> findAll(){
-//        List<Category> res = new ArrayList<>();
-//        if (refreshService.isCooldownGone()){
-//            categoryRepository.deleteAll();
-//            categoryRepository.saveAll(categories());
-//            refreshService.refresh();
-//        }
-//        return categoryRepository.findAll();
-//    };
+    public List<Category> findAll(){
+        return categoryRepository.findAll();
+    };
 
     public List<String> cutJSONArr(String jsonArr) {
         List<String> resultArr = new ArrayList<>();
@@ -65,19 +58,12 @@ public class CategoryService {
         String  category = restTemplate.getForObject(url, String.class);
         System.out.println(category);
         List<String> categoryList =  cutJSONArr(category);
-        List<Category> sourceList = new ArrayList<>();
-        String text;
+        List<Category> realCategoryList = new ArrayList<>();
+        deleteAll();
         for (int i = 0; i < categoryList.size() ;i++){
-//            sourceList.add(new Gson().fromJson(categoryList.get(i), Category.class));
-            for(int j = 1; j < categoryList.get(i).length; j++){
-                int hexVal = Integer.parseInt(arr[j], 16);
-                text += (char)hexVal;
-            }
-            System.out.println(categoryList.get(i));
-//            System.out.println(sourceList.get(i));
+            System.out.println(StringEscapeUtils.unescapeJava(categoryList.get(i)));
+            categoryRepository.save(StringEscapeUtils.unescapeJava(categoryList.get(i)));
         }
-
-        //        return sourceList;
     }
 
 

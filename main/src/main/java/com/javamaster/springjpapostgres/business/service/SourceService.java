@@ -20,10 +20,12 @@ public class SourceService {
     @Autowired
     private final SourceRepository sourceRepository;
     private final RefreshService refreshService;
+    private final CategoryService categoryService;
 
-    public SourceService(SourceRepository sourceRepository, RefreshService refreshService) {
+    public SourceService(SourceRepository sourceRepository, RefreshService refreshService, CategoryService categoryService) {
         this.sourceRepository = sourceRepository;
         this.refreshService = refreshService;
+        this.categoryService = categoryService;
     }
 
     public Source findById(String id){return  sourceRepository.findById(id).orElse(null);}
@@ -34,11 +36,13 @@ public class SourceService {
         if (refreshService.isCooldownGone()){
             sourceRepository.deleteAll();
             sourceRepository.saveAll(getDialogs());
+            categoryService.categories();
             refreshService.refresh();
         }
         return sourceRepository.findAll();
     };
 
+    public void deleteAll(){sourceRepository.deleteAll();}
     public List<Source> findAll(Specification<Source> criteria){return sourceRepository.findAll(criteria);};
 
     public void saveList( List<Source> data){
@@ -83,7 +87,6 @@ public class SourceService {
         String  source = restTemplate.getForObject(url, String.class);
         System.out.println(source);
     }
-
     @Transactional
     public void delete( String id){
         sourceRepository.deleteById(id);
