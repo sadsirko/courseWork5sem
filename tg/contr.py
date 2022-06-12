@@ -18,6 +18,7 @@ class JoinChannel(RequestHandler):
     async def get(self):
         print("get")
         name = self.get_argument('link')
+        print(name)
         result = await telegram.join_channel(name)
         print(result)
 
@@ -42,10 +43,27 @@ class GetCategoriesSource(RequestHandler):
         jsonString = json.dumps(res)
         self.write(jsonString)
 
+class ProcessChannels(RequestHandler):
+    async def get(self):
+        print("proc")
+        arr_channels = self.get_argument('sourceList')
+        from_date = self.get_argument('startDate')
+        to_date = self.get_argument('endDate')
+        stop_w = self.get_argument('stop')
+        sym_num = self.get_argument('symbolNum')
+        range_day = self.get_argument('range')
+        print(arr_channels.replace("[","").replace("]","").split(", "))
+        print(from_date)
+        print(to_date)
+        print(stop_w)
+        print(sym_num)
+        print(range_day)
+        # result = await telegram.join_channel(name)
     
 def make_app():
     urls = [("/dialogs", GetChannels),
             ("/add", JoinChannel),
+            ("/process", ProcessChannels),
             ("/categories", GetCategories),
             ("/folders", GetFolders)]
 

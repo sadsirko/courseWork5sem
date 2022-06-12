@@ -14,14 +14,12 @@ import random
 engine = create_engine('postgresql://postgres:3793180d@localhost/postgres')
 connection = engine.connect()
 
-
 client = MongoClient()
 client = MongoClient('localhost', 27017)
 db = client.test_database
 db = client['test']
 collection = db['test']
 posts = db.stage
-
 
 lemmatizer = rulemma.Lemmatizer()
 lemmatizer.load()
@@ -37,6 +35,7 @@ class Text:
         self.ukr_arr=["і","є","ї"]
         self.rus_arr=["э","ё","ы","ъ"]
         self.getRes()
+        
     def cutMain(self):
         if(len(self.text)>650):
             self.text = self.text[0:649]
@@ -48,7 +47,7 @@ class Text:
         self.text=re.sub(r"[-«»()\[\]\"’—#/@;:<>{}=~|.?!,⚡️0-9#№$*]|\\n", " ", self.text)
 
     def tokenize(self):
-        self.tokenized=nltk.word_tokenize(self.text.lower())
+            self.tokenized=nltk.word_tokenize(self.text.lower())
 
     def defLang(self):
         if len(self.tokenized)>0:

@@ -1,3 +1,4 @@
+
 import configparser
 import json
 import re
@@ -19,6 +20,10 @@ import pymongo
 from pymongo import MongoClient
 import datetime
 
+import requests
+from bs4 import BeautifulSoup
+
+
 
 class Telegram_api:
     def __init__(self, name, api_hash, api_id):
@@ -28,7 +33,11 @@ class Telegram_api:
         self.client = TelegramClient(name, api_id, api_hash)
         self.client.connect()
         self.client.start()
-
+        self.clientDB = MongoClient('localhost', 27017)
+        self.db = self.clientDB.test_database
+        self.db = self.clientDB['test']
+        self.collection = self.db['test']
+        self.posts = self.db.stage
 
     async def write_me(self):
         await self.client.send_message('me', "self.take_dialog()")
@@ -55,18 +64,26 @@ class Telegram_api:
         dialogs = await self.client.get_dialogs()
         return dialogs
 
-
     async def dialog_info(self, dia):
         ch_id = dia.message.peer_id.channel_id
         title = dia.name
         chan_ent = await self.client.get_entity(PeerChannel(ch_id))
-        # path_photo = await client.download_profile_photo(chan_ent,path_photo_2)
-        # link_on_photo = await upload_get_link(path_photo)
         # await fullDB_Dia(ch_id, title)
         # await fullDB_Photo(ch_id,link_on_photo)
         print("ID:", dia.message.peer_id.channel_id)
         print("TITLE: ", dia.name)
         print("DIA: ", dia)
+
+    #find images on page 
+    async def find_link(self,url):
+        response = requests.get(url)
+        html_page = BeautifulSoup(response.text, 'html.parser')
+        images = html_page.find_all("img")
+
+        for index, image in enumerate(images):
+            image_url= image.get("src")      #img src value
+            return image_url
+
 
     async def get_all_channels(self):
         await self.client.send_message('me', 'Thanks for the Telethon library!')
@@ -75,11 +92,18 @@ class Telegram_api:
         iteration = 0
         for dialog in dialog_arr:
             if dialog.name != "Enekin":
-                print(dialog.name)
                 try:
-                    data.append({"id":dialog.message.peer_id.channel_id,"name":dialog.name})
+                    link = "https://t.me/" + dialog.entity.username
+                    data.append({"id":dialog.message.peer_id.channel_id,
+                     "name":dialog.name,"link":link,
+                     "photo": await self.find_link(link)
+                     })
                 except BaseException:
-                    print(dialog.message)
+                    try:
+                        data.append({"id":dialog.message.peer_id.channel_id,
+                        "name":dialog.name,"link":"null"})
+                    except BaseException:                
+                        print(dialog.message)
         return data
 
     async def get_folders(self):
@@ -108,51 +132,12 @@ class Telegram_api:
         print(json)
         return json
 
-    # clientDB = MongoClient('localhost', 27017)
-    # db = clientDB.test_database
-    # db = clientDB['test']
-    # collection = db['test']
-    # posts = db.stage
-    # #
-    # create_Mes_T = """CREATE TABLE IF NOT EXISTS Message_T(
-    #                 #ID serial PRIMARY KEY,
-    #                 #CHANNEL_ID varchar (20) NOT NULL,
-    #                 #TEXT varchar(20000),
-    #                 #DATE TIMESTAMP,
-    #                 #FWD_FROM VARCHAR(20),
-    #                 #MENTION_ID VARCHAR(20),
-    #                 #FORWARDS INTEGER,
-    #                 #VIEWS INTEGER,
-    #                 #IDOFMSG INTEGER);
-    #                 #"""
-    # create_Dialog_T = """CREATE TABLE IF NOT EXISTS Dialog_T(
-    #                 #ID serial PRIMARY KEY,
-    #                 #CHANNEL_ID varchar (20) NOT NULL ,
-    #                 #TITLE varchar(500));
-    #                 #"""
-    #
-    # create_Dialog_Ph = """CREATE TABLE IF NOT EXISTS Dialog_Ph(
-    #                         #CHANNEL_ID VARCHAR(20),
-    #                         #LINK_PHOTO VARCHAR(50))"""
-    #
-
-    # Listen to messages from target channel
-    # @client.on(events.NewMessage("me"))
-
     async def getMessagesDB(self):
         dialog_arr = self.take_dialog()
         for i in range(2, len(dialog_arr) - 1):
             await self.dialog_info(dialog_arr[i])
             async for message in self.client.iter_messages(dialog_arr[i], limit=self.LIMIT):
                 await self.takeMesInfo(message)
-            # try:
-            #     with self.client.takeout() as takeout:
-            #         for message in takeout.iter_messages(dialog_arr[i], wait_time=0):
-            #             ...  # Do something with the message
-            #
-            # except errors.TakeoutInitDelayError as e:
-            #     print('Must wait', e.seconds, 'before takeout')
-
 
     async def takeMesInfo(self, message):
         author_id = message.peer_id.channel_id
@@ -164,7 +149,7 @@ class Telegram_api:
         mention_id = await self.mention(message)
         date = message.date
         # await fullDB_Msg(author_id,mess,date,from_id,mention_id,views_count,fwd_count,id_of_msg)
-        # await full_mong(message.date,author_id,message.text)
+        await self.full_mong(message.date,author_id,message.text)
         print("author_id:", author_id)
         print("Message :", message.text)
         print("Mess from: ", await self.whose(message))  # id or 'null'
@@ -202,6 +187,11 @@ class Telegram_api:
             return True
         else:
             return False
+
+    async def full_mong(self,date,chanel_id,message):
+        _id=str(date)[0:4]+str(date)[5:7]+str(date)[8:10]
+        self.posts.update_many({"_id":_id},{'$push':{'messages':message}}, upsert = True)
+        self.posts.update_many({"_id":_id},{'$push':{'channels':chanel_id}}, upsert = True)
 
     # [{name,id},{name,id}]
 

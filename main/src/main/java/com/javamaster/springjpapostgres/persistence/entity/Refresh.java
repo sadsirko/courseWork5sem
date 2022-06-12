@@ -14,11 +14,11 @@ public class Refresh {
     @Column
     Date date;
 
-    public Date getName() {
+    public Date getDate() {
         return date;
     }
 
-    public void setName(Date date) {
+    public void setDate(Date date) {
         this.date = date;
     }
 

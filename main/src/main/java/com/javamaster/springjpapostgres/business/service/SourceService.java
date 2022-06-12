@@ -79,10 +79,30 @@ public class SourceService {
         return sourceList;
     }
 
+    public void process(String startDate, String endDate, String stop,
+                        Integer symb_num, Integer range, List<Source> sourceList ){
+        List<String> arr = new ArrayList<String>();
+        for (int i = 0; i < sourceList.size(); i++){
+            arr.add(sourceList.get(i).getId());
+        }
+        String url = """
+                                http://localhost:3000/process?startDate="""+startDate+"""
+                                &endDate=""" + endDate + """
+                                &stop=""" + stop + """ 
+                                &symbolNum="""+ symb_num +"""
+                                &range="""+ range + """
+                                &sourceList=""" + arr;
+
+        System.out.println(url);
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getForObject(url, String.class);
+
+    }
 
     public void addChannel(String link) {
         final String url = "http://localhost:3000/add?link=" + link;
-
+        System.out.println(link);
+        System.out.println(url);
         RestTemplate restTemplate = new RestTemplate();
         String  source = restTemplate.getForObject(url, String.class);
         System.out.println(source);
@@ -91,7 +111,6 @@ public class SourceService {
     public void delete( String id){
         sourceRepository.deleteById(id);
     }
-
 
     public List<Source> getSearch(String parameters){
         SourceSpecificationsBuilder builder = new SourceSpecificationsBuilder();

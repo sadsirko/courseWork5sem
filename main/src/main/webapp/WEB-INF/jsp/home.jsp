@@ -17,9 +17,10 @@
             <c:choose>
            <c:when test="${ empty nameList }">
             <c:forEach var="source" items="${sourceList}">
-                <h3 class="title"> ${source.name}</h3>
-                <i>id </i>: ${source.id}
-                
+                <p class="title">
+                 <img src=${source.photo} alt ="photo" width=40 height =40>
+                 ${source.name}
+                 <a href="${source.link}"><i> link: ${source.link}</i></a></p>
                 <ul class="list-inline">
                     <li class="list-inline-item">
                                 <form class="form-inline" action="/home/add" method="get">
@@ -61,9 +62,11 @@
         <div class="col-md-5">
            <c:if test="${not empty chooseList }">
             <c:forEach var="choose" items="${chooseList}">
-                <h3 class="title"> ${choose.name}</h3>
-                <i>id </i>: ${choose.id}
-                
+                <p class="title">
+                                 <img src=${choose.photo} alt ="photo" width=40 height =40>
+                                 ${choose.name}
+                                 <a href="${choose.link}"><i> link: ${choose.link}</i></a></p>
+
                 <ul class="list-inline">
                     <li class="list-inline-item">
                                 <form class="form-inline" action="/home/remove" method="get">

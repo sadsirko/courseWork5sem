@@ -113,18 +113,25 @@ public class MainController {
     }
 
     @RequestMapping(value = "/processing",method = RequestMethod.POST)
-    public String processingPage(Model model,@ModelAttribute("sourceId") String sourceId,
+    public String processingPage(Model model,@ModelAttribute("chooseList") String sourceId,
                           @ModelAttribute("startDate") String startDate,
                           @ModelAttribute("endDate") String endDate,
                           @ModelAttribute("stop") String stop,
                           @ModelAttribute("range") String range,
                           @ModelAttribute("symbolNum") String symbolNum,
                           HttpServletRequest request) {
+        List<Source> chooseList = (List<Source>) request.getSession().getAttribute("chooseList");
+
+        System.out.println(chooseList.toString());
+        System.out.println(model.getAttribute("sourceId "));
         System.out.println(model.getAttribute("startDate"));
         System.out.println(model.getAttribute("endDate"));
         System.out.println(model.getAttribute("stop"));
         System.out.println(model.getAttribute("symbolNum"));
         System.out.println(model.getAttribute("range"));
+        sourceService.process(startDate,endDate,stop,
+                Integer.parseInt(symbolNum),Integer.parseInt(range),chooseList);
+
         return "redirect:home";
     }
 
@@ -139,10 +146,10 @@ public class MainController {
         return "add";
     }
 
-    @RequestMapping(value = "/addChannel",method = RequestMethod.POST)
+    @RequestMapping(value = "/addChannelTg",method = RequestMethod.GET)
     public String addChannel(Model model, @ModelAttribute("link") String link, HttpServletRequest request) {
-        String info = (String) request.getSession().getAttribute("link");
-        System.out.println(model.getAttribute("link"));
+        String info = (String) model.getAttribute("link");
+        System.out.println();
         sourceService.addChannel(info);
         return "redirect:home";
     }
@@ -167,4 +174,5 @@ public class MainController {
         request.getSession().setAttribute("newList", nameList);
         return "category";
     }
+
 }

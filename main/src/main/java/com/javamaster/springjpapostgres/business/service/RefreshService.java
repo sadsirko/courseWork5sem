@@ -10,7 +10,7 @@ import java.util.Date;
 public class RefreshService {
     @Autowired
     private final RefreshRepository refreshRepository;
-    private final int CASH_COOLDOWN = 24;
+    private final int CASH_COOLDOWN = 2;
 
     public RefreshService(RefreshRepository refreshRepository) {
         this.refreshRepository = refreshRepository;
@@ -25,6 +25,7 @@ public class RefreshService {
     public double hoursAfterLog() {
         Date now = new Date();
         Date date = getLastDate();
+
         double diff = now.getTime() - date.getTime();
         double hours = diff / 3600000;
         return hours;
