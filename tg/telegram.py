@@ -19,6 +19,11 @@ from telethon import functions, types
 import pymongo
 from pymongo import MongoClient
 import datetime
+from datetime import datetime, timedelta
+from nltkMongo import Text
+from bson.json_util import dumps
+from os.path import join
+import pandas as pd
 
 import requests
 from bs4 import BeautifulSoup
@@ -28,7 +33,7 @@ from bs4 import BeautifulSoup
 class Telegram_api:
     def __init__(self, name, api_hash, api_id):
         self.MY_NAME = name
-        self.LIMIT = 1
+        self.LIMIT = 4
         self.path_photo_2 = 'photo/'
         self.client = TelegramClient(name, api_id, api_hash)
         self.client.connect()
@@ -38,6 +43,11 @@ class Telegram_api:
         self.db = self.clientDB['test']
         self.collection = self.db['test']
         self.posts = self.db.stage
+        #linux problem
+        self.time_offs = 3
+    
+    async def del_all(self):
+        self.posts.drop()
 
     async def write_me(self):
         await self.client.send_message('me', "self.take_dialog()")
@@ -106,6 +116,42 @@ class Telegram_api:
                         print(dialog.message)
         return data
 
+    async def backup_db(backup_db_dir):
+        client = pymongo.MongoClient(host='localhost', port=27017)
+        database = client['test']
+        # authenticated = database.authenticate(<uname>,<pwd>)
+        # assert authenticated, "Could not authenticate to database!"
+        collections = database.list_collection_names()
+        for i, collection_name in enumerate(collections):
+            col = getattr(database,collections[i])
+            collection = col.find()
+            jsonpath = collection_name + ".json"
+            jsonpath = join(backup_db_dir, jsonpath)
+            with open(jsonpath, "w", encoding="utf8") as jsonfile:
+                jsonfile.write(dumps(collection))
+
+
+    async def get_by_id(self,id_arr,from_date,to_date,stop_w,symbol_num,range_day):
+        # print(stop_w)
+        dialog_arr = await self.take_dialog()
+        data = []
+        from_date_time_obj = datetime.strptime(from_date, '%d/%m/%y %H:%M')
+        to_date_time_obj = datetime.strptime(to_date, '%d/%m/%y %H:%M')
+        for dialog in dialog_arr:
+            if dialog.name != "Enekin":
+                try:
+                    if id_arr.index(str(dialog.message.peer_id.channel_id)) >= 0:
+                        async for message in self.client.iter_messages(dialog, limit = 200):
+                            datetime_obj = datetime.strptime(str(message.date)[0:19], '%Y-%m-%d %H:%M:%S') 
+                            datetime_obj = datetime_obj + timedelta(hours = self.time_offs)
+                            if (datetime_obj > from_date_time_obj) and (datetime_obj < to_date_time_obj):
+                                await self.takeMesInfo(message)    
+                except BaseException:         
+                    pass
+        await self.add_stopwords(stop_w)
+        await self.nltk_use(symbol_num)
+        return data
+ 
     async def get_folders(self):
         json = ''
         request = await self.client(functions.messages.GetDialogFiltersRequest())
@@ -132,12 +178,12 @@ class Telegram_api:
         print(json)
         return json
 
-    async def getMessagesDB(self):
-        dialog_arr = self.take_dialog()
-        for i in range(2, len(dialog_arr) - 1):
-            await self.dialog_info(dialog_arr[i])
-            async for message in self.client.iter_messages(dialog_arr[i], limit=self.LIMIT):
-                await self.takeMesInfo(message)
+    # async def getMessagesDB(self):
+    #     dialog_arr = self.take_dialog()
+    #     for i in range(2, len(dialog_arr) - 1):
+    #         await self.dialog_info(dialog_arr[i])
+    #         async for message in self.client.iter_messages(dialog_arr[i], limit=self.LIMIT):
+    #             await self.takeMesInfo(message)
 
     async def takeMesInfo(self, message):
         author_id = message.peer_id.channel_id
@@ -149,12 +195,29 @@ class Telegram_api:
         mention_id = await self.mention(message)
         date = message.date
         # await fullDB_Msg(author_id,mess,date,from_id,mention_id,views_count,fwd_count,id_of_msg)
-        await self.full_mong(message.date,author_id,message.text)
-        print("author_id:", author_id)
-        print("Message :", message.text)
-        print("Mess from: ", await self.whose(message))  # id or 'null'
-        print("Mention: ", await self.mention(message))  # chanelid or 'null'
-        print("DATE: ", message.date)
+        if len(message.text) > 0:
+            await self.full_mong(message.date,author_id,message.text)
+        # print("author_id:", author_id)
+        # print("Message :", message.text)
+        # print("Mess from: ", await self.whose(message))  # id or 'null'
+        # print("Mention: ", await self.mention(message))  # chanelid or 'null'
+        # print("DATE: ", message.date)
+
+    async def add_stopwords(self,arr_words):
+        f = open("stopwords_additional.py", "w")
+        f.write("stop_add=" + str(arr_words).replace("\'","\""))
+        f.close()
+    
+    async def nltk_use(self,range):
+        cursor=self.posts.find({})
+        for document in cursor:
+            _id = document["_id"]
+            for ms in document["messages"]:
+                if ms is None :
+                    self.posts.update_many({"_id":_id},{'$push':{'tokeized':[]}}, upsert = True)
+                else:
+                    self.posts.update_many({"_id":_id},{'$push':{'tokeized':Text(ms,range).final}}, upsert = True)
+
 
     async def whose(self, message):
         try:

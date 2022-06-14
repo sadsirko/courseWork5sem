@@ -1,0 +1,1 @@
+stop_add=["винтовка", "Житель", "sdfsdf", "gsfgsg", "agdf"]

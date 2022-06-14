@@ -1,7 +1,9 @@
 import nltk
 import re
 from stopwords_ua_list import stop_ua
-from stop_words_russian import stop_ru
+from stopwords_ru_list import stop_ru
+from stopwords_additional import stop_add
+
 import rulemma
 from pymystem3 import Mystem
 import pymongo
@@ -10,13 +12,16 @@ import datetime
 import json
 from sqlalchemy import *
 import random
+from bson.json_util import dumps
+from os.path import join
+import pandas as pd
+from pymongo import MongoClient
 
 engine = create_engine('postgresql://postgres:3793180d@localhost/postgres')
 connection = engine.connect()
 
 client = MongoClient()
 client = MongoClient('localhost', 27017)
-db = client.test_database
 db = client['test']
 collection = db['test']
 posts = db.stage
@@ -26,8 +31,9 @@ lemmatizer.load()
 m = Mystem()
 
 class Text:
-    def __init__(self,text):
+    def __init__(self,text,max_len):
         self.text = text
+        self.max_len = int(max_len)
         self.lemmas=[]
         self.ua="ukr"
         self.rus="rus"
@@ -37,8 +43,8 @@ class Text:
         self.getRes()
         
     def cutMain(self):
-        if(len(self.text)>650):
-            self.text = self.text[0:649]
+        if(len(self.text)>self.max_len):
+            self.text = self.text[0:self.max_len]
 
     def clearFromLink(self):
         self.text=re.sub(r"([@#][A-Za-z0-9]+)|([@#][А-Яа-я0-9]+)|(\w+:\/\/\S+)"," ",self.text)
@@ -67,10 +73,10 @@ class Text:
             self.lemmas.append(m.lemmatize(word)[0])
 
     def clearSW_ru(self):
-        self.final = [word for word in self.lemmas if not word in stop_ru]
+        self.final = [word for word in self.lemmas if not word in stop_ru + stop_add]
 
     def clearSW_ua(self):
-        self.final = [word for word in self.tokenized if not word in stop_ua]
+        self.final = [word for word in self.tokenized if not word in stop_ua + stop_add]
 
     def getRes(self):
         self.cutMain()
@@ -86,64 +92,31 @@ class Text:
         else:
             self.final=self.tokenized
 
-def add_tokenize():
-    cursor=posts.find({})
+
+def add_tokenize(post):
+    cursor=post.find({})
     for document in cursor:
         _id = document["_id"]
         for ms in document["messages"]:
             if ms is None :
                 posts.update_many({"_id":_id},{'$push':{'tokeized':[]}}, upsert = True)
             else:
-                posts.update_many({"_id":_id},{'$push':{'tokeized':Text(ms).final}}, upsert = True)
+                posts.update_many({"_id":_id},{'$push':{'tokeized':Text(ms,650).final}}, upsert = True)
 
-def show_pared(ret):
-    pares=[]
-    res = {}
-    cursor=posts.find({})
-    for document in cursor:
-        _id = document["_id"]
-        if(_id != "20210621"):
-            len_doc=len(document["tokeized"])
-            for i in range(0,len_doc):
-                for j in range(i + 1,len_doc):
-                    general = set(document["tokeized"][i])&set(document["tokeized"][j])
-                    if len(general ) > 2:
-                        if(document["messages"][i] != len(document["messages"][j])):
-                            if str(document["channels"][i]) != str(document["channels"][j]):
-                                dd = str(document["channels"][i]) +"A"+ str(document["channels"][j])
-                                pares.append([document["messages"][i],document["messages"][j]])
-                                if not res.get(dd):
-                                    res[dd] = 1
-                                else:
-                                    res[dd] += 1
 
-    print(len(pares))
-    if(ret == "db"):
-        return res
-    return pares
+def backup_db(backup_db_dir):
+    client = pymongo.MongoClient(host='localhost', port=27017)
+    database = client['test']
+    # authenticated = database.authenticate(<uname>,<pwd>)
+    # assert authenticated, "Could not authenticate to database!"
+    collections = database.list_collection_names()
+    for i, collection_name in enumerate(collections):
+        col = getattr(database,collections[i])
+        collection = col.find()
+        jsonpath = collection_name + ".json"
+        jsonpath = join(backup_db_dir, jsonpath)
+        with open(jsonpath, "w", encoding="utf8") as jsonfile:
+            jsonfile.write(dumps(collection))
 
-#add_tokenize()
-
-def open_file(file_name,content):
-    with open(file_name,"w") as text:
-        _len = len(content)
-        for i in range(0,20):
-            text.write(str(content[random.randint(0,_len - 1)]))
-            text.write('\n')
-#change to db to get what we send
-open_file("new.txt",show_pared("test"))
-
-def write_to_postgr(dict_sum):
-    insert_to_sum_t_2 = """
-    insert into sum3_table(id1,id2,_count) VALUES(%s,%s,%s)
-    """
-    create_tb="""CREATE TABLE IF NOT EXISTS sum3_table(id1 varchar(20),id2 varchar(20),_count int);"""
-    connection.execute(create_tb)
-    for i in dict_sum.keys():
-        tmp = dict_sum[i]
-        pos = i.find("A")
-        connection.execute(insert_to_sum_t_2,i[0:pos],i[pos + 1:len(i)],tmp)
-
-#write_to_postgr(show_pared())
-
-#print(set(ex1)&set(ex3))
+backup_db("./")
+# add_tokenize(posts)

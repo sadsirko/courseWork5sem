@@ -7,6 +7,7 @@ import json
 SELF_NAME = "Enekin"
 telegram = Telegram_api(SELF_NAME, API_HASH, API_ID)
 
+
 class GetChannels(RequestHandler):
     async def get(self):
         print("get")
@@ -50,14 +51,13 @@ class ProcessChannels(RequestHandler):
         from_date = self.get_argument('startDate')
         to_date = self.get_argument('endDate')
         stop_w = self.get_argument('stop')
-        sym_num = self.get_argument('symbolNum')
+        symbol_num = self.get_argument('symbolNum')
         range_day = self.get_argument('range')
-        print(arr_channels.replace("[","").replace("]","").split(", "))
-        print(from_date)
-        print(to_date)
-        print(stop_w)
-        print(sym_num)
-        print(range_day)
+        await telegram.del_all()
+        print(await telegram.get_by_id(arr_channels.replace("[","").replace("]","")
+                                                    .replace('"',"").split(", "),
+                                       from_date,to_date,stop_w.split(" "),symbol_num,range_day))
+        await telegram.backup_db(".")
         # result = await telegram.join_channel(name)
     
 def make_app():
