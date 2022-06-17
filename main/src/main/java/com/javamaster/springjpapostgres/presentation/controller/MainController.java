@@ -14,7 +14,12 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,12 +39,12 @@ public class MainController {
     public String homePage(HttpServletRequest request) {
         List<Source> chooseList = new ArrayList<>();
         List<Source> sourceList = sourceService.findAll();
-        List<Source> sourceListAPI = sourceService.getDialogs();
+//        List<Source> sourceListAPI = sourceService.getDialogs();
         List<Source> nameList = new ArrayList<>();
 
         if( request.getSession().getAttribute("sourceList") == null &&
                 request.getSession().getAttribute("chooseList") == null) {
-            request.getSession().setAttribute("sourceList", sourceListAPI);
+            request.getSession().setAttribute("sourceList", sourceList);
             request.getSession().setAttribute("chooseList", chooseList);
         }
         request.getSession().setAttribute("nameList", nameList);
@@ -132,7 +137,7 @@ public class MainController {
         sourceService.process(startDate,endDate,stop,
                 Integer.parseInt(symbolNum),Integer.parseInt(range),chooseList);
 
-        return "redirect:home";
+        return "redirect:download";
     }
 
     @RequestMapping(value = "/addChannel",method = RequestMethod.GET)
@@ -174,5 +179,28 @@ public class MainController {
         request.getSession().setAttribute("newList", nameList);
         return "category";
     }
+
+        @RequestMapping(value = "/download", method = RequestMethod.GET)
+        public void downloadPDFResource( HttpServletRequest request,
+                                         HttpServletResponse response)
+        {
+            System.out.println("down");
+            String path = "/home/dionis/Desktop/study/courseWork5sem/tg/";
+            Path file = Paths.get(path, "stage.json");
+            if (Files.exists(file))
+            {
+                System.out.println("exist");
+                response.setContentType("application/json");
+                response.addHeader("Content-Disposition", "attachment; filename="+"stage.json");
+                try
+                {
+                    Files.copy(file, response.getOutputStream());
+                    response.getOutputStream().flush();
+                }
+                catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
 
 }

@@ -39,8 +39,9 @@ class GetCategories(RequestHandler):
 
 class GetCategoriesSource(RequestHandler):
     async def get(self):
-        print("get")
-        res = await telegram.get_categories_channel()
+        print("catsource")
+        res = await telegram.get_by_folder(2)
+        print(res)
         jsonString = json.dumps(res)
         self.write(jsonString)
 
@@ -65,7 +66,8 @@ def make_app():
             ("/add", JoinChannel),
             ("/process", ProcessChannels),
             ("/categories", GetCategories),
-            ("/folders", GetFolders)]
+            ("/folders", GetFolders)
+            ]
 
     return Application(urls)
 

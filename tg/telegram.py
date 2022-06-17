@@ -116,12 +116,13 @@ class Telegram_api:
                         print(dialog.message)
         return data
 
-    async def backup_db(backup_db_dir):
+    async def backup_db(self,backup_db_dir):
         client = pymongo.MongoClient(host='localhost', port=27017)
         database = client['test']
         # authenticated = database.authenticate(<uname>,<pwd>)
         # assert authenticated, "Could not authenticate to database!"
         collections = database.list_collection_names()
+        print("backup")
         for i, collection_name in enumerate(collections):
             col = getattr(database,collections[i])
             collection = col.find()
@@ -129,7 +130,7 @@ class Telegram_api:
             jsonpath = join(backup_db_dir, jsonpath)
             with open(jsonpath, "w", encoding="utf8") as jsonfile:
                 jsonfile.write(dumps(collection))
-
+        print("done")
 
     async def get_by_id(self,id_arr,from_date,to_date,stop_w,symbol_num,range_day):
         # print(stop_w)
@@ -137,11 +138,12 @@ class Telegram_api:
         data = []
         from_date_time_obj = datetime.strptime(from_date, '%d/%m/%y %H:%M')
         to_date_time_obj = datetime.strptime(to_date, '%d/%m/%y %H:%M')
+        print(id_arr,from_date,to_date_time_obj,from_date_time_obj)
         for dialog in dialog_arr:
             if dialog.name != "Enekin":
                 try:
                     if id_arr.index(str(dialog.message.peer_id.channel_id)) >= 0:
-                        async for message in self.client.iter_messages(dialog, limit = 200):
+                        async for message in self.client.iter_messages(dialog, limit = 2000):
                             datetime_obj = datetime.strptime(str(message.date)[0:19], '%Y-%m-%d %H:%M:%S') 
                             datetime_obj = datetime_obj + timedelta(hours = self.time_offs)
                             if (datetime_obj > from_date_time_obj) and (datetime_obj < to_date_time_obj):
@@ -152,6 +154,9 @@ class Telegram_api:
         await self.nltk_use(symbol_num)
         return data
  
+    async def get_by_folder(self,id):
+        return await self.client.get_dialogs(folder=id)
+
     async def get_folders(self):
         json = ''
         request = await self.client(functions.messages.GetDialogFiltersRequest())
@@ -160,7 +165,7 @@ class Telegram_api:
             for channel in dialog_filter.include_peers:
                 json += "{\'" + str(dialog_filter.title)  + "\'," + "\'" + str(channel.channel_id) + "\'}," 
                 print(channel.channel_id)
-            json = json[:-1]
+            json = json[:-1] + "}"
         print(json)
         return json
 

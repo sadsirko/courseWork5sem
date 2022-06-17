@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface SourceRepository extends JpaRepository<Source, String>, JpaSpecificationExecutor<Source> {
+    @Query(value = "select * from source order by id limit ?1 offset ?2",nativeQuery = true)
+    List<Source> findPagination(Integer fromPagination,Integer toPagination);
     List<Source> findAll();
     Optional<Source> findById(String id);
     @Query(value = "select S from Source S where S.name like %?1%")

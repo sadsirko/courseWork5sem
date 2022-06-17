@@ -53,6 +53,7 @@
                 </ul>
                 <hr>
             </c:forEach>
+
            </c:otherwise>
            </c:choose>
 
@@ -80,6 +81,7 @@
                 <hr>
             </c:forEach>
            </c:if>
+
         </div>
 </div>
     <%@ include file="/WEB-INF/jspf/footer.jspf" %>

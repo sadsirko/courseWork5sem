@@ -1,1 +1,1 @@
-stop_add=["винтовка", "Житель", "sdfsdf", "gsfgsg", "agdf"]
+stop_add=["fzvzfg", "zxfzfg"]

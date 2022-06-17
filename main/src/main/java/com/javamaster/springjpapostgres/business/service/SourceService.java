@@ -34,6 +34,7 @@ public class SourceService {
     public List<Source> findAll(){
         List<Source> res = new ArrayList<>();
         if (refreshService.isCooldownGone()){
+            System.out.println("refreshing");
             sourceRepository.deleteAll();
             sourceRepository.saveAll(getDialogs());
             categoryService.categories();
