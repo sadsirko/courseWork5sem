@@ -22,10 +22,12 @@ public class SourceService {
     private final RefreshService refreshService;
     private final CategoryService categoryService;
 
-    public SourceService(SourceRepository sourceRepository, RefreshService refreshService, CategoryService categoryService) {
+    private final SourceCategoryService sourceCategoryService;
+    public SourceService(SourceRepository sourceRepository, RefreshService refreshService, CategoryService categoryService, SourceCategoryService sourceCategoryService) {
         this.sourceRepository = sourceRepository;
         this.refreshService = refreshService;
         this.categoryService = categoryService;
+        this.sourceCategoryService = sourceCategoryService;
     }
 
     public Source findById(String id){return  sourceRepository.findById(id).orElse(null);}
@@ -35,6 +37,8 @@ public class SourceService {
         List<Source> res = new ArrayList<>();
         if (refreshService.isCooldownGone()){
             System.out.println("refreshing");
+            sourceCategoryService.deleteAll();
+            sourceCategoryService.sourceCategories();
             sourceRepository.deleteAll();
             sourceRepository.saveAll(getDialogs());
             categoryService.categories();
@@ -78,6 +82,10 @@ public class SourceService {
             System.out.println(sourceStrList.get(i));
         }
         return sourceList;
+    }
+
+    public List<Source> findByCategory(String category){
+        return sourceRepository.findByCategory(category);
     }
 
     public void process(String startDate, String endDate, String stop,

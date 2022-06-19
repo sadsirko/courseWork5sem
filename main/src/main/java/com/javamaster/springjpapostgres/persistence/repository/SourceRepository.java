@@ -18,4 +18,6 @@ public interface SourceRepository extends JpaRepository<Source, String>, JpaSpec
     @Query(value = "select S from Source S where S.name like %?1%")
     List<Source> findByName(String name);
 
+    @Query(value = "select * from source where id in (select source_id from source_category where category = ?1)",nativeQuery = true)
+    List<Source> findByCategory(String categoryName);
 }

@@ -1,6 +1,8 @@
 package com.javamaster.springjpapostgres.business.service;
 
+import com.google.gson.Gson;
 import com.javamaster.springjpapostgres.persistence.entity.Category;
+import com.javamaster.springjpapostgres.persistence.entity.SourceCategory;
 import com.javamaster.springjpapostgres.persistence.repository.CategoryRepository;
 import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,9 +47,9 @@ public class CategoryService {
         int end = 0;
         while (end < jsonArr.length()-5)
         {
-            start = jsonArr.indexOf("'",end);
-            end = jsonArr.indexOf(",",end) + 1;
-            resultArr.add(jsonArr.substring(start + 1,end - 2));
+            start = jsonArr.indexOf("{",end);
+            end = jsonArr.indexOf("}",end) + 1;
+            resultArr.add(jsonArr.substring(start,end));
         }
         return resultArr;
     }
@@ -62,12 +64,9 @@ public class CategoryService {
         deleteAll();
         for (int i = 0; i < categoryList.size() ;i++){
             System.out.println(StringEscapeUtils.unescapeJava(categoryList.get(i)));
-            categoryRepository.save(StringEscapeUtils.unescapeJava(categoryList.get(i)));
+            categoryRepository.save(new Gson().fromJson(categoryList.get(i), Category.class));
         }
     }
-
-
-
 
     @Transactional
     public void delete( Integer id){

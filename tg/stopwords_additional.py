@@ -1,1 +1,1 @@
-stop_add=["fzvzfg", "zxfzfg"]
+stop_add=["ракета", "ПВО"]

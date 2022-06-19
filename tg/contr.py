@@ -10,14 +10,14 @@ telegram = Telegram_api(SELF_NAME, API_HASH, API_ID)
 
 class GetChannels(RequestHandler):
     async def get(self):
-        print("get")
+        print("channels")
         res = await telegram.get_all_channels()
         jsonString = json.dumps(res)
         self.write(jsonString)
 
 class JoinChannel(RequestHandler):
     async def get(self):
-        print("get")
+        print("join")
         name = self.get_argument('link')
         print(name)
         result = await telegram.join_channel(name)
@@ -25,14 +25,14 @@ class JoinChannel(RequestHandler):
 
 class GetFolders(RequestHandler):
     async def get(self):
-        print("get")
+        print("folders")
         res = await telegram.get_folders()
         jsonString = json.dumps(res)
         self.write(jsonString)
 
 class GetCategories(RequestHandler):
     async def get(self):
-        print("get")
+        print("categories")
         res = await telegram.get_categories()
         jsonString = json.dumps(res)
         self.write(jsonString)
@@ -59,6 +59,7 @@ class ProcessChannels(RequestHandler):
                                                     .replace('"',"").split(", "),
                                        from_date,to_date,stop_w.split(" "),symbol_num,range_day))
         await telegram.backup_db(".")
+        await telegram.add_end(range_day)
         # result = await telegram.join_channel(name)
     
 def make_app():

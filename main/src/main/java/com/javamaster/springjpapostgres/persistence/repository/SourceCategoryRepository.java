@@ -16,7 +16,8 @@ public interface SourceCategoryRepository extends JpaRepository<SourceCategory, 
 //    List<SourceCategory> findByCategory(Integer category);
     @Transactional
     @Modifying
-    @Query(value = "insert into source_category (source_Id,category_Id) values(?1,?2)",
+    @Query(value = "insert into source_category (source_Id,category) values(?1,?2)",
             nativeQuery = true)
-    void save(String source_Id, Integer category_Id);
+    void save(String source_Id, String category);
+
 }

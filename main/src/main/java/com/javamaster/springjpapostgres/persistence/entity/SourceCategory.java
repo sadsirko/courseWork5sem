@@ -8,11 +8,11 @@ public class SourceCategory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 
-    @Column(name = "source_Id")
+    @Column(name = "source_id")
     private String source;
 
-    @Column(name = "category_Id")
-    private Integer category;
+    @Column(name = "category")
+    private String category;
 
     public String getSource() {
         return source;
@@ -21,14 +21,14 @@ public class SourceCategory {
     public void setSource(String source) {
         this.source = source;
     }
-
-    public Integer getCategory() {
+    public String getCategory() {
         return category;
     }
 
-    public void setCategory(Integer category) {
+    public void setCategory(String category) {
         this.category = category;
     }
+
 
     @Override
     public String toString() {

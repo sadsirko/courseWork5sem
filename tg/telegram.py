@@ -132,6 +132,13 @@ class Telegram_api:
                 jsonfile.write(dumps(collection))
         print("done")
 
+    async def add_end(self,data):
+        file_object = open('stage.json', 'a')
+        # Append 'hello' at the end of file
+        file_object.write('\n' + data)
+        # Close the file
+        file_object.close()
+
     async def get_by_id(self,id_arr,from_date,to_date,stop_w,symbol_num,range_day):
         # print(stop_w)
         dialog_arr = await self.take_dialog()
@@ -158,30 +165,25 @@ class Telegram_api:
         return await self.client.get_dialogs(folder=id)
 
     async def get_folders(self):
+        data =[]
         json = ''
         request = await self.client(functions.messages.GetDialogFiltersRequest())
         for dialog_filter in request:
             print(dialog_filter.title)
             for channel in dialog_filter.include_peers:
-                json += "{\'" + str(dialog_filter.title)  + "\'," + "\'" + str(channel.channel_id) + "\'}," 
-                print(channel.channel_id)
-            json = json[:-1] + "}"
-        print(json)
-        return json
+                    data.append({"category":dialog_filter.title,
+                     "source": channel.channel_id
+                     })
+        return data
 
     async def get_categories(self):
         print(1)
-        json = '{'
+        data = []
         request = await self.client(functions.messages.GetDialogFiltersRequest())
         for dialog_filter in request:
-            json += "\'" + str(dialog_filter.title)  + "\'," 
-            json += ','
-            json = json[:-1]
-        json = json[:-1]
-        json += ','
-        json += "}"
-        print(json)
-        return json
+                         data.append({"id":dialog_filter.id,
+                     "name":dialog_filter.title})
+        return data
 
     # async def getMessagesDB(self):
     #     dialog_arr = self.take_dialog()

@@ -1,6 +1,8 @@
 package com.javamaster.springjpapostgres.business.service;
 
+import com.google.gson.Gson;
 import com.javamaster.springjpapostgres.persistence.entity.Category;
+import com.javamaster.springjpapostgres.persistence.entity.Source;
 import com.javamaster.springjpapostgres.persistence.entity.SourceCategory;
 import com.javamaster.springjpapostgres.persistence.repository.CategoryRepository;
 import com.javamaster.springjpapostgres.persistence.repository.SourceCategoryRepository;
@@ -23,57 +25,52 @@ public class SourceCategoryService {
         this.sourceCategoryRepository = sourceCategoryRepository;
     }
 
-
 //    public List<SourceCategory> findByCategory(Integer category){return  sourceCategoryRepository.findByCategory(category);}
-
-
 
     public void saveList( List<SourceCategory> data){
         for(int i = 0; i < data.size();i++){
-            sourceCategoryRepository.save(data.get(i));
+            System.out.println(data.get(i).getSource() + data.get(i).getCategory());
+            sourceCategoryRepository.save(data.get(i).getSource(),data.get(i).getCategory());
         }
     }
+
     public void deleteAll(){sourceCategoryRepository.deleteAll();}
 
     public List<SourceCategory> findAll(){
         return sourceCategoryRepository.findAll();
     };
-
-    public List<String> cutJSONArr(String jsonArr) {
-        List<String> resultArr = new ArrayList<>();
-        int start = 0;
-        int end = 0;
-        while (end < jsonArr.length()-5)
-        {
-            start = jsonArr.indexOf("'",end);
-            end = jsonArr.indexOf(",",end) + 1;
-            resultArr.add(jsonArr.substring(start + 1,end - 2));
-        }
-        return resultArr;
-    }
 //
-    public void sourceCategories() {
+public List<String> cutJSONArr(String jsonArr) {
+    List<String> resultArr = new ArrayList<>();
+    int start = 0;
+    int end = 0;
+    while (end < jsonArr.length()-5)
+    {
+        start = jsonArr.indexOf("{",end);
+        end = jsonArr.indexOf("}",end) + 1;
+        resultArr.add(jsonArr.substring(start,end));
+    }
+    return resultArr;
+}
+
+    public List<SourceCategory> sourceCategories() {
         final String url = "http://localhost:3000/folders";
         RestTemplate restTemplate = new RestTemplate();
         String  category = restTemplate.getForObject(url, String.class);
         System.out.println("cat" + category);
-//        List<String> categoryList =  cutJSONArr(category);
-//        List<Category> realCategoryList = new ArrayList<>();
-//        deleteAll();
-//        for (int i = 0; i < categoryList.size() ;i++){
-//            System.out.println(StringEscapeUtils.unescapeJava(categoryList.get(i)));
-//            SourceCategorycategoryRepository.save(StringEscapeUtils.unescapeJava(categoryList.get(i)));
-//        }
+        List<String> categoryList =  cutJSONArr(category);
+        List<SourceCategory> realCategoryList = new ArrayList<>();
+        for (int i = 0; i < categoryList.size() ;i++){
+            System.out.println(categoryList.get(i));
+            realCategoryList.add(new Gson().fromJson(categoryList.get(i), SourceCategory.class));
+        }
+        saveList(realCategoryList);
+        return realCategoryList;
     }
-
-
-
 
     @Transactional
     public void delete( Integer id){
         sourceCategoryRepository.deleteById(id);
     }
-
-
 
 }

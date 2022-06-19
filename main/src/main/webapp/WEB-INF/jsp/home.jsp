@@ -29,7 +29,6 @@
                                         <input type="hidden" name="sourceName" value="${source.name}">
                                     <button type="submit" class="btn btn-outline-primary"> Add </button>
                                 </form>
-                        <!-- Modal -->
 
                     </li>
                 </ul>

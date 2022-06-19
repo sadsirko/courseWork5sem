@@ -73,6 +73,20 @@ public class MainController {
         return "home";
     }
 
+    @RequestMapping(value = "/category/check", method = RequestMethod.POST)
+    public String postCategory(Model model,@ModelAttribute("folderName") String folderName,
+                               @ModelAttribute("folderId") String folderId, HttpServletRequest request) {
+        System.out.println(model.getAttribute("folderId"));
+        System.out.println(model.getAttribute("folderName"));
+        System.out.println(folderName);
+        System.out.println(folderId);
+
+        List<Source> sourceList = sourceService.findByCategory((String)model.getAttribute("folderName"));
+        System.out.println(sourceList);
+        request.getSession().setAttribute("nameList", sourceList);
+        return "home";
+    }
+
     @RequestMapping(value = "/home/name",method = RequestMethod.GET)
     public String find(Model model, @ModelAttribute("name") String name,
                        HttpServletRequest request){
@@ -171,11 +185,9 @@ public class MainController {
     @RequestMapping(value = "/folders", method = RequestMethod.GET)
     public String postCategories(Model model, @ModelAttribute("link") String link, HttpServletRequest request) {
         sourceCategoryService.sourceCategories();
-        List<SourceCategory> nameList = new ArrayList<>();
-        nameList = sourceCategoryService.findAll();
-        for (int o = 0;o<nameList.size();o++){
-            System.out.println(nameList.get(o).toString());
-        }
+        List<Source> nameList = sourceService.findByCategory("Пропаганда");
+        System.out.println(nameList);
+        request.getSession().setAttribute("nameList", nameList);
         request.getSession().setAttribute("newList", nameList);
         return "category";
     }
